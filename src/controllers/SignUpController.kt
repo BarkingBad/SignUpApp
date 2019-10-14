@@ -6,19 +6,15 @@ import io.ktor.auth.authenticate
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
+import io.ktor.routing.*
 import models.NewAttraction
 import models.NewReservation
-import models.Reservation
 
 fun Route.signUpController(signUpService: SignUpService) {
     authenticate {
         route("/signup") {
             get {
-                call.respond(HttpStatusCode.Accepted, signUpService.getAllAttractions())
+                call.respond(HttpStatusCode.OK, signUpService.getAllAttractions().map { it.toAttractionDTO() })
             }
             post("/new") {
                 val post = call.receive<NewAttraction>()
@@ -35,6 +31,15 @@ fun Route.signUpController(signUpService: SignUpService) {
                     call.respond(HttpStatusCode.Created)
                 } catch(e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError, "Error during signing up for attraction")
+                }
+            }
+            delete {
+                val delete = call.receive<NewReservation>()
+                try {
+                    signUpService.dropOutFromAttraction(delete.userId, delete.attractionId)
+                    call.respond(HttpStatusCode.OK)
+                } catch(e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, "Error during dropping out from attraction")
                 }
             }
         }

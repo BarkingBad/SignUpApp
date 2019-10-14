@@ -2,6 +2,7 @@ package com.signupapp.services
 
 import com.signupapp.services.DbProvider.dbQuery
 import models.Users
+import models.toUser
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 
@@ -27,7 +28,7 @@ class AuthorizationService {
 
     suspend fun isPasswordCorrect(loginToCompare: String, passwordToCompare: String): Boolean {
         val user = dbQuery {
-            Users.select { Users.login eq loginToCompare }.map { DbProvider.toUser(it) }
+            Users.select { Users.login eq loginToCompare }.map { toUser(it) }
         }
         return user.first().password == passwordToCompare
     }
