@@ -1,8 +1,9 @@
 package com.signupapp.services
 
 import com.signupapp.services.DbProvider.dbQuery
+import models.User
 import models.Users
-import models.toUser
+import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 
@@ -32,5 +33,12 @@ class AuthorizationService {
         }
         return user.first().password == passwordToCompare
     }
+
+    fun toUser(row: ResultRow): User =
+        User(
+            id = row[Users.id].value,
+            login = row[Users.login],
+            password = row[Users.password]
+        )
 }
 

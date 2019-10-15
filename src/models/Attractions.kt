@@ -3,7 +3,6 @@ package models
 import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ResultRow
 import org.joda.time.DateTime
 
 object Attractions : IntIdTable() {
@@ -22,7 +21,7 @@ data class Attraction(
     val description: String,
     val participantsCurrent: Int,
     val participantsLimit: Int,
-    val participantsList: Lazy<List<User>>,
+    val participantsList: List<String>,
     val beginsAt: DateTime,
     val endsAt: DateTime
 ) {
@@ -34,26 +33,10 @@ data class Attraction(
             description = this.description,
             participantsCurrent = this.participantsCurrent,
             participantsLimit = this.participantsLimit,
-            beginsAt = this.beginsAt,
-            endsAt = this.endsAt
+            beginsAt = this.beginsAt.toString(),
+            endsAt = this.endsAt.toString()
         )
 }
-
-fun toAttraction(attractionRow: ResultRow, userRow: ResultRow, participantsCount: Int): Attraction =
-    Attraction(
-        id = attractionRow[Attractions.id].value,
-        organizer = toUser(userRow),
-        title = attractionRow[Attractions.title],
-        description = attractionRow[Attractions.description],
-        participantsCurrent = participantsCount,
-        participantsLimit = attractionRow[Attractions.participantsLimit],
-        participantsList = lazy {
-            emptyList<User>()
-            // TODO
-            },
-        beginsAt = attractionRow[Attractions.beginsAt],
-        endsAt = attractionRow[Attractions.endsAt]
-    )
 
 data class AttractionDTO(
     val id: Int,
@@ -62,8 +45,8 @@ data class AttractionDTO(
     val description: String,
     val participantsCurrent: Int,
     val participantsLimit: Int,
-    val beginsAt: DateTime,
-    val endsAt: DateTime
+    val beginsAt: String,
+    val endsAt: String
 )
 
 data class NewAttraction(
